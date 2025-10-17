@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmailJS Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body>
+    <h1>EmailJS Configuration Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        // Your current configuration
+        const SERVICE_ID = 'service_gigs2pn';
+        const TEMPLATE_ID = 'template_rz5irsl';
+        const PUBLIC_KEY = 'eJsllel7YnF9rRB_1';
+        
+        const resultsDiv = document.getElementById('results');
+        
+        function log(message) {
+            console.log(message);
+            resultsDiv.innerHTML += '<p>' + message + '</p>';
+        }
+        
+        async function testEmailJS() {
+            try {
+                log('Initializing EmailJS with Public Key: ' + PUBLIC_KEY);
+                emailjs.init(PUBLIC_KEY);
+                
+                log('Testing with Service ID: ' + SERVICE_ID);
+                log('Testing with Template ID: ' + TEMPLATE_ID);
+                
+                const testParams = {
+                    to_name: 'Test User',
+                    to_email: 'test@example.com',
+                    message: 'Test message'
+                };
+                
+                log('Sending test email...');
+                const response = await emailjs.send(SERVICE_ID, TEMPLATE_ID, testParams);
+                
+                log('✅ SUCCESS! Email sent successfully: ' + JSON.stringify(response));
+                
+            } catch (error) {
+                log('❌ ERROR: ' + error.message);
+                log('Status: ' + error.status);
+                log('Text: ' + error.text);
+                log('Full error: ' + JSON.stringify(error));
+            }
+        }
+        
+        // Run test when page loads
+        testEmailJS();
+    </script>
+</body>
+</html>
+
+
+

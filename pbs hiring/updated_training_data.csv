@@ -1,0 +1,52 @@
+Trade,Age,Educational Attainment,Years of Experience,Skill Score,Status
+Electronics Engineer,46,Bachelor's Degree,20,83,Hired
+Helper,27,High School,5,58,Rejected
+Welder,34,Vocational/Technical,11,71,Hired
+Painter,40,High School,16,67,Hired
+Network Technician,31,Associate Degree,9,70,Hired
+Mason,29,High School,7,66,Hired
+CCTV Technician,41,Associate Degree,17,73,Rejected
+Helper,35,Elementary,10,54,Hired
+Technician,33,Vocational/Technical,12,71,Hired
+Electrician,38,Associate Degree,14,79,Hired
+Painter,29,High School,6,64,Hired
+Mason,44,Vocational/Technical,20,77,Hired
+Helper,23,High School,2,52,Rejected
+Electronics Engineer,50,Master's Degree,26,89,Hired
+Welder,41,Vocational/Technical,18,75,Hired
+CCTV Technician,28,Associate Degree,5,63,Hired
+Technician,36,Vocational/Technical,13,72,Hired
+Electrician,30,Associate Degree,8,69,Rejected
+Painter,33,High School,11,65,Hired
+Helper,40,Elementary,17,55,Hired
+Network Technician,37,Bachelor's Degree,15,78,Hired
+CCTV Technician,35,Vocational/Technical,12,71,Hired
+Mason,27,High School,6,62,Hired
+Helper,24,High School,3,53,Rejected
+Welder,32,Vocational/Technical,10,72,Hired
+Technician,41,Associate Degree,18,77,Hired
+Electrician,29,High School,6,64,Hired
+Painter,42,High School,20,68,Hired
+Network Technician,34,Bachelor's Degree,12,74,Hired
+Helper,26,High School,4,57,Rejected
+Mason,38,Vocational/Technical,15,70,Hired
+CCTV Technician,44,Associate Degree,21,75,Hired
+Technician,31,Vocational/Technical,9,69,Hired
+Electrician,48,Associate Degree,25,84,Hired
+Helper,22,Elementary,1,50,Rejected
+Painter,37,High School,13,66,Hired
+Welder,29,Vocational/Technical,6,65,Hired
+Network Technician,40,Bachelor's Degree,18,81,Hired
+CCTV Technician,26,Vocational/Technical,5,60,Hired
+Mason,35,High School,12,68,Hired
+Electronics Engineer,52,Master's Degree,28,91,Hired
+Helper,28,High School,5,56,Rejected
+Technician,46,Associate Degree,23,82,Hired
+Electrician,36,Vocational/Technical,14,74,Hired
+Painter,30,High School,7,63,Hired
+Welder,45,Vocational/Technical,21,78,Hired
+Helper,25,High School,2,54,Rejected
+Mason,41,Vocational/Technical,18,72,Hired
+Technician,34,Vocational/Technical,11,71,Hired
+Electrician,39,Associate Degree,16,78,Hired
+Painter,27,High School,5,61,Hired
