@@ -204,7 +204,8 @@ body {
   margin-bottom: 0.5rem;
   text-align: center;
   font-family: 'Roboto', sans-serif;
-  margin-right: 150px;
+  margin-right: 200px;
+  margin-left: 80px;
 }
 
 .subtitle-text {
@@ -213,7 +214,8 @@ body {
   text-align: center;
   margin-bottom: 1.5rem;
   font-family: 'Roboto', sans-serif;
-  margin-right: 150px !important;
+  margin-right: 200px;
+  margin-left: 50px;
 }
 
 .login-form {
@@ -401,7 +403,8 @@ input::placeholder {
 .signup-link {
   text-align: center;
   margin-top: 0.5rem;
-  margin-right: 150px;
+  margin-right: 200px;
+  margin-left: 90px;
 }
 
 .signup-text {
@@ -471,6 +474,7 @@ input::placeholder {
   .welcome-text {
     font-size: 1.4rem;
     margin-right: 0;
+    margin-left: 0;
   }
   
   .subtitle-text {
@@ -498,6 +502,7 @@ input::placeholder {
   .pbs-logo-img { margin-left: 0; }
   .pbs-company-name { margin-top: 12px; margin-right: 0; margin-left: 0; }
   .pbs-tagline { width: min(90%, 360px); margin-left: 0; }
+  .signup-link { margin-left: 0; margin-right: 0; }
 }
 
 @media (max-width: 768px) {
@@ -519,6 +524,7 @@ input::placeholder {
   .welcome-text {
     font-size: 1.2rem;
     margin-right: 0;
+    margin-left: 0;
   }
   
   .subtitle-text {
@@ -550,7 +556,7 @@ input::placeholder {
   .pbs-company-name { margin-top: 10px; margin-right: 0; margin-left: 0; }
   .pbs-tagline { width: min(92%, 320px); }
 
-  .signup-link { margin-right: 0; }
+  .signup-link { margin-right: 0; margin-left: 0; }
   .forgot-password { margin-right: 0; }
   .forgot-password-link { margin-left: 0; }
   .forgot-password { width: 100%; }
@@ -576,6 +582,7 @@ input::placeholder {
   .welcome-text {
     font-size: 1.05rem;
     margin-right: 0;
+    margin-left: 0;
   }
   
   .subtitle-text {
@@ -622,7 +629,7 @@ input::placeholder {
   .pbs-company-name { margin-top: 0px !important; margin-right: 0 !important; margin-left: 0 !important; }
   .pbs-tagline { width: min(94%, 300px); }
 
-  .signup-link { margin-right: 0; }
+  .signup-link { margin-right: 0; margin-left: 0; }
   .forgot-password { margin-right: 0; }
   .forgot-password-link { margin-left: 0; }
   .forgot-password { width: 100%; }
@@ -662,7 +669,7 @@ input::placeholder {
 /* Align login error with Google button and reduce width on desktop */
 .login-right > .error-message {
   max-width: 360px;
-  margin-left: auto;
+  margin-left: 150px;
   margin-right: 220px; /* matches .login-form desktop offset */
 }
 
@@ -831,18 +838,16 @@ input.error:focus {
 }
 
 .reset-password-container .welcome-text {
-  margin-left: 0;
-  margin-right: 150px;
-  width: 360px;
-  text-align: left;
-  white-space: nowrap;
+  text-align: center;
+  width: auto;
+  margin: 0 150px 0.5rem 0;
+  white-space: normal;
 }
 
 .reset-password-container .subtitle-text {
-  margin-left: 0;
-  margin-right: 150px;
-  width: 360px;
-  text-align: left;
+  text-align: center;
+  width: auto;
+  margin: 0 150px 1rem 0;
 }
 
 
@@ -867,3 +872,5 @@ input.error:focus {
   .reset-password-container .welcome-text { text-align: center; width: 100%; margin: 0 auto 0.5rem; padding: 0 10px; margin-right: 0; white-space: normal; }
   .reset-password-container .subtitle-text { text-align: center; width: 100%; margin: 0 auto 1rem; padding: 0 10px; }
 }
+
+

@@ -111,6 +111,7 @@
   margin-bottom: 0.3rem;
   text-align: center;
   font-family: 'Roboto', sans-serif;
+  margin-left: 50px;
 }
 
 .subtitle-text {
@@ -315,6 +316,7 @@ input::placeholder {
 .signup-link {
   text-align: center;
   margin-top: 0.5rem;
+  margin-left: 50px;
 }
 
 .signup-text {
@@ -355,6 +357,8 @@ input::placeholder {
   .pbs-logo-container { top: 50%; left: 45%; transform: translate(-50%, -50%); width: auto; }
   .pbs-company-name { margin-top: 12px; }
   .pbs-tagline { width: min(90%, 360px); }
+  .welcome-text { margin-left: 0; }
+  .signup-link { margin-left: 0; }
 }
 
 @media (max-width: 768px) {
@@ -386,6 +390,8 @@ input::placeholder {
   .pbs-tagline { font-size: 13px; }
   /* Align logo container similar to desktop */
   .pbs-logo-container { top: 50%; left: 42%; transform: translate(-50%, -50%); }
+  .welcome-text { margin-left: 0; }
+  .signup-link { margin-left: 0; }
 }
 
 @media (max-width: 480px) {
@@ -418,6 +424,8 @@ input::placeholder {
   .pbs-tagline { font-size: 13px; width: min(95%, 320px); margin: 18px auto 0; text-align: center; }
   /* Align logo container similar to desktop */
   .pbs-logo-container { top: 45%; left: 50%; transform: translate(-50%, -50%); }
+  .welcome-text { margin-left: 0; }
+  .signup-link { margin-left: 0; }
 }
 
 /* ultra-small phones */
