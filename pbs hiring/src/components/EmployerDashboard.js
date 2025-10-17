@@ -1091,12 +1091,11 @@ const EmployerDashboard = () => {
   const computeMLRankings = async (employees) => {
     setIsRunningML(true);
     try {
-      // Use loaded CSV training data or fallback
-      const currentTrainingData = trainingData.length > 0 ? trainingData : [
-        { trade: 'Electronics Engineer', age: 28, education: 'Bachelor\'s Degree', experience: 5, skillScore: 85, status: 'hired' },
-        { trade: 'Network Technician', age: 32, education: 'College', experience: 8, skillScore: 92, status: 'hired' },
-        { trade: 'Electrician', age: 25, education: 'Vocational', experience: 3, skillScore: 78, status: 'rejected' }
-      ];
+      // Require real training data; no hardcoded fallback
+      const currentTrainingData = trainingData && trainingData.length > 0 ? trainingData : [];
+      if (currentTrainingData.length === 0) {
+        throw new Error('No training data loaded. Upload CSV in Ranked Candidates → Load CSV.');
+      }
       
       // Train XGBoost models
       const trainResponse = await fetch('https://xgboost-service.onrender.com/api/train-xgboost', {
@@ -1165,7 +1164,20 @@ const EmployerDashboard = () => {
       
     } catch (error) {
       console.error('XGBoost ML ranking failed:', error);
-      await Swal.fire({ icon: 'error', title: 'Service unavailable', text: 'XGBoost service unavailable. Make sure Python service is running.' });
+      const msg = (error && error.message ? error.message : '').toString().toLowerCase();
+      try {
+        if (msg.includes('no training data')) {
+          const res = await Swal.fire({
+            icon: 'warning',
+            title: 'Training data required',
+            text: 'No training data found. Upload CSV in Ranked Candidates → Load CSV.',
+            confirmButtonText: 'Open Upload'
+          });
+          try { setShowCSVUpload(true); } catch {}
+        } else {
+          await Swal.fire({ icon: 'error', title: 'Service unavailable', text: 'XGBoost service unavailable. Make sure Python service is running.' });
+        }
+      } catch {}
       return employees.map(emp => ({
         ...emp,
         score: 0
@@ -1791,6 +1803,37 @@ const EmployerDashboard = () => {
     return jobTitles;
   };
 
+  // Compute count of jobs active within the current month and active today
+  const getActiveJobsThisMonth = () => {
+    try {
+      const parseDateStr = (s) => {
+        if (!s) return null;
+        const d = new Date(s);
+        return Number.isNaN(d.getTime()) ? null : d;
+      };
+      const overlapWithRange = (start, end, rangeStart, rangeEnd) => {
+        const s = start || new Date(0);
+        const e = end || new Date(8640000000000000);
+        return e >= rangeStart && s <= rangeEnd;
+      };
+      const now = new Date();
+      const startOfMonth = (d0) => { const d = new Date(d0.getFullYear(), d0.getMonth(), 1); d.setHours(0,0,0,0); return d; };
+      const endOfMonth = (d0) => { const d = new Date(d0.getFullYear(), d0.getMonth() + 1, 0); d.setHours(23,59,59,999); return d; };
+      const thisMonthStart = startOfMonth(now);
+      const thisMonthEnd = endOfMonth(now);
+      const today = new Date(); today.setHours(0,0,0,0);
+      return jobs.filter(j => {
+        const s = parseDateStr(j.applicationStartDate);
+        const e = parseDateStr(j.applicationEndDate);
+        const overlaps = overlapWithRange(s, e, thisMonthStart, thisMonthEnd);
+        if (!overlaps) return false;
+        if (s && s > today) return false; // not yet started
+        if (e && e < today) return false; // already ended
+        return true;
+      }).length;
+    } catch { return 0; }
+  };
+
   const handleMessagesClick = async () => {
     await Swal.fire({ icon: 'info', title: 'Coming soon', text: 'Messages functionality coming soon!' });
   };
@@ -2092,10 +2135,25 @@ const EmployerDashboard = () => {
 
   const handleJobFieldChange = (field, value) => {
     console.log('Updating field:', field, 'to:', value);
-    setEditingJob(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setEditingJob(prev => {
+      const next = { ...prev, [field]: value };
+      // Guard: ensure end date is never before start date
+      if (field === 'applicationStartDate') {
+        const start = value || '';
+        const end = next.applicationEndDate || '';
+        if (start && end && end < start) {
+          next.applicationEndDate = start;
+        }
+      }
+      if (field === 'applicationEndDate') {
+        const start = next.applicationStartDate || '';
+        const end = value || '';
+        if (start && end && end < start) {
+          next.applicationEndDate = start;
+        }
+      }
+      return next;
+    });
   };
 
   const handleSaveJob = async () => {
@@ -2452,7 +2510,7 @@ const EmployerDashboard = () => {
           <div className="kpi-content">
             <h3 className="kpi-label">Total Job Posts</h3>
             <div className="kpi-number">{kpiData.totalJobPosts}</div>
-            <p className="kpi-subtext">3 active this month</p>
+            <p className="kpi-subtext">{getActiveJobsThisMonth()} active this month</p>
             <div className="kpi-change positive">+2 from last month</div>
           </div>
           <div className="kpi-icon">
@@ -2567,21 +2625,35 @@ const EmployerDashboard = () => {
                 <div className="job-card-header">
                   <div className="job-title">{job.title}</div>
                   <span className={`job-status-badge ${(() => {
-                    // Determine Active/Closed based on end date
+                    // Determine Inactive (not yet started), Active, or Expired based on start/end dates
                     try {
-                      const end = job?.applicationEndDate;
-                      if (!end) return 'active';
                       const today = new Date(); today.setHours(0,0,0,0);
-                      const endDate = new Date(end); endDate.setHours(0,0,0,0);
-                      return endDate >= today ? 'active' : 'expired';
+                      const start = job?.applicationStartDate;
+                      if (start) {
+                        const startDate = new Date(start); startDate.setHours(0,0,0,0);
+                        if (startDate > today) return 'inactive';
+                      }
+                      const end = job?.applicationEndDate;
+                      if (end) {
+                        const endDate = new Date(end); endDate.setHours(0,0,0,0);
+                        return endDate >= today ? 'active' : 'expired';
+                      }
+                      return 'active';
                     } catch { return 'active'; }
                   })()}`}>{(() => {
                     try {
-                      const end = job?.applicationEndDate;
-                      if (!end) return 'Active';
                       const today = new Date(); today.setHours(0,0,0,0);
-                      const endDate = new Date(end); endDate.setHours(0,0,0,0);
-                      return endDate >= today ? 'Active' : 'Expired';
+                      const start = job?.applicationStartDate;
+                      if (start) {
+                        const startDate = new Date(start); startDate.setHours(0,0,0,0);
+                        if (startDate > today) return 'Inactive';
+                      }
+                      const end = job?.applicationEndDate;
+                      if (end) {
+                        const endDate = new Date(end); endDate.setHours(0,0,0,0);
+                        return endDate >= today ? 'Active' : 'Expired';
+                      }
+                      return 'Active';
                     } catch { return 'Active'; }
                   })()}</span>
                 </div>
@@ -3818,9 +3890,7 @@ const EmployerDashboard = () => {
             <h2>Applicant Details & Score Breakdown</h2>
             <button className="close-modal-btn" onClick={handleCloseApplicantDetailsModal}>✕</button>
           </div>
-          <div style={{padding:'12px 20px', backgroundColor:'#fff3cd', border:'1px solid #ffeaa7', borderRadius:'8px', margin:'16px 20px', fontSize:'12px', color:'#856404'}}>
-            <strong>Note:</strong> XGBoost models use advanced tree-based algorithms that may include bias terms, feature scaling/normalization, and non-linear transformations beyond simple linear combinations shown in the breakdown.
-          </div>
+          
           <div className="modal-body">
             {applicantDetailsLoading ? (
               <div>Loading applicant details...</div>
@@ -3991,6 +4061,9 @@ const EmployerDashboard = () => {
                       <div style={{display:'flex', flexDirection:'column', gap:'8px', fontSize:'14px'}}>
                         <div style={{marginTop:'8px', paddingTop:'8px', borderTop:'1px solid #ddd'}}>
                           <strong>Total Points: {manualTotal.toFixed(2)}</strong>
+                        </div>
+                        <div style={{padding:'8px 12px', backgroundColor:'#fff3cd', border:'1px solid #ffeaa7', borderRadius:'6px', color:'#856404', fontSize:'12px'}}>
+                          <strong>Note:</strong> XGBoost models use advanced tree-based algorithms that may include bias terms, feature scaling/normalization, and non-linear transformations beyond simple linear combinations shown in the breakdown.
                         </div>
                       </div>
                     </div>

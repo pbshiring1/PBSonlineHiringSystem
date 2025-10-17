@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
-import { collection, query, where, getDocs, orderBy, limit, doc, updateDoc, onSnapshot, documentId, addDoc, getDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, limit, doc, updateDoc, onSnapshot, documentId, addDoc, getDoc, deleteDoc } from 'firebase/firestore';
 
 import { db, getAllJobs, deleteJob, createJob, updateJob, getApplicantDocuments, getApplicantDocumentContent, getApplicantsByJobId, getApplicantCountByJobId, getAllApplicantsWithJobs, deleteUser, deleteMultipleUsers, uploadCSVTrainingData, loadTrainingDataFromStorage } from '../firebase';
 
@@ -1484,7 +1484,15 @@ const AdminDashboard = () => {
         const activeThisMonth = jobsData.filter(j => {
           const s = parseDateStr(j.applicationStartDate);
           const e = parseDateStr(j.applicationEndDate);
-          return overlapWithRange(s, e, thisMonthStart, thisMonthEnd);
+          const overlaps = overlapWithRange(s, e, thisMonthStart, thisMonthEnd);
+          if (!overlaps) return false;
+          // Only count currently active (not future, not expired)
+          try {
+            const today = new Date(); today.setHours(0,0,0,0);
+            if (s && s > today) return false; // not yet started
+            if (e && e < today) return false; // already ended
+          } catch {}
+          return true;
         }).length;
         const activeLastMonth = jobsData.filter(j => {
           const s = parseDateStr(j.applicationStartDate);
@@ -1898,6 +1906,18 @@ const AdminDashboard = () => {
 
       await deleteUser(user.id);
 
+      // Also delete related decision records for this user
+      try {
+        const decSnap = await getDocs(
+          query(collection(db, 'decisions'), where('applicantId', '==', user.id))
+        );
+        await Promise.all(
+          decSnap.docs.map((d) => deleteDoc(doc(db, 'decisions', d.id)))
+        );
+      } catch (cleanupErr) {
+        console.warn('Failed to delete related decisions for user:', user.id, cleanupErr);
+      }
+
       // Update local state to remove the deleted user
       setUsers(prev => prev.filter(u => u.id !== user.id));
 
@@ -1964,6 +1984,21 @@ const AdminDashboard = () => {
 
       await deleteMultipleUsers(selectedUsers);
 
+      // Also delete related decision records for all selected users
+      try {
+        for (const uid of selectedUsers) {
+          const decSnap = await getDocs(
+            query(collection(db, 'decisions'), where('applicantId', '==', uid))
+          );
+          // Delete each decision document for this user
+          await Promise.all(
+            decSnap.docs.map((d) => deleteDoc(doc(db, 'decisions', d.id)))
+          );
+        }
+      } catch (cleanupErr) {
+        console.warn('Failed to delete some related decisions during bulk delete:', cleanupErr);
+      }
+
       // Update local state to remove the deleted users
       setUsers(prev => prev.filter(u => !selectedUsers.includes(u.id)));
 
@@ -2025,13 +2060,43 @@ const AdminDashboard = () => {
 
     console.log('Updating field:', field, 'to:', value); // Debug log
 
-    setEditingJob(prev => ({
+    setEditingJob(prev => {
 
-      ...prev,
+      const next = { ...prev, [field]: value };
 
-      [field]: value
+      // Guard: end date must not be before start date
 
-    }));
+      if (field === 'applicationStartDate') {
+
+        const start = value || '';
+
+        const end = next.applicationEndDate || '';
+
+        if (start && end && end < start) {
+
+          next.applicationEndDate = start;
+
+        }
+
+      }
+
+      if (field === 'applicationEndDate') {
+
+        const start = next.applicationStartDate || '';
+
+        const end = value || '';
+
+        if (start && end && end < start) {
+
+          next.applicationEndDate = start;
+
+        }
+
+      }
+
+      return next;
+
+    });
 
   };
 
@@ -2054,6 +2119,14 @@ const AdminDashboard = () => {
 
       return;
 
+    }
+
+    // Validate that end date is not earlier than start date
+    const start = editingJob?.applicationStartDate || '';
+    const end = editingJob?.applicationEndDate || '';
+    if (start && end && end < start) {
+      await Swal.fire({ icon: 'warning', title: 'Invalid dates', text: 'Application End Date cannot be earlier than Application Start Date.' });
+      return;
     }
 
     
@@ -2396,19 +2469,35 @@ const AdminDashboard = () => {
 
     try {
 
-      const end = job?.applicationEndDate;
-
-      if (!end) return 'Active';
-
       const today = new Date();
 
       today.setHours(0, 0, 0, 0);
 
-      const endDate = new Date(end);
+      const start = job?.applicationStartDate;
 
-      endDate.setHours(0, 0, 0, 0);
+      if (start) {
 
-      return endDate >= today ? 'Active' : 'Closed';
+        const startDate = new Date(start);
+
+        startDate.setHours(0, 0, 0, 0);
+
+        if (startDate > today) return 'Inactive';
+
+      }
+
+      const end = job?.applicationEndDate;
+
+      if (end) {
+
+        const endDate = new Date(end);
+
+        endDate.setHours(0, 0, 0, 0);
+
+        return endDate >= today ? 'Active' : 'Closed';
+
+      }
+
+      return 'Active';
 
     } catch {
 
@@ -4009,17 +4098,11 @@ const AdminDashboard = () => {
 
     try {
 
-      // Use loaded CSV training data or fallback
-
-      const currentTrainingData = trainingData.length > 0 ? trainingData : [
-
-        { trade: 'Electronics Engineer', age: 28, education: 'Bachelor\'s Degree', experience: 5, skillScore: 85, status: 'hired' },
-
-        { trade: 'Network Technician', age: 32, education: 'College', experience: 8, skillScore: 92, status: 'hired' },
-
-        { trade: 'Electrician', age: 25, education: 'Vocational', experience: 3, skillScore: 78, status: 'rejected' }
-
-      ];
+      // Require real training data; no hardcoded fallback
+      const currentTrainingData = trainingData && trainingData.length > 0 ? trainingData : [];
+      if (currentTrainingData.length === 0) {
+        throw new Error('No training data loaded. Upload CSV in Ranked Candidates → Load CSV.');
+      }
 
       
       
@@ -4156,8 +4239,20 @@ const AdminDashboard = () => {
     } catch (error) {
 
       console.error('XGBoost ML ranking failed:', error);
-
-      alert('XGBoost service unavailable. Make sure Python service is running.');
+      const msg = (error && error.message ? error.message : '').toString().toLowerCase();
+      try {
+        if (msg.includes('no training data')) {
+          const res = await Swal.fire({
+            icon: 'warning',
+            title: 'Training data required',
+            text: 'No training data found. Upload CSV in Ranked Candidates → Load CSV.',
+            confirmButtonText: 'Open Upload'
+          });
+          try { setShowCSVUpload(true); } catch {}
+        } else {
+          await Swal.fire({ icon: 'error', title: 'Service unavailable', text: 'XGBoost service unavailable. Make sure Python service is running.' });
+        }
+      } catch {}
 
       return employees.map(emp => ({
 
@@ -4335,11 +4430,23 @@ const AdminDashboard = () => {
 
           const result = await response.json();
 
-          alert(`✅ Successfully loaded ${data.length} training records. XGBoost models trained for ${result.trades?.length || 0} trades`);
+          try {
+            await Swal.fire({
+              icon: 'success',
+              title: 'Training complete',
+              text: `Successfully loaded ${data.length} records. Trained for ${result.trades?.length || 0} trades.`
+            });
+          } catch {}
 
         } else {
 
-          alert(`✅ Successfully loaded ${data.length} training records (XGBoost training service unavailable)`);
+          try {
+            await Swal.fire({
+              icon: 'success',
+              title: 'Training data loaded',
+              text: `Successfully loaded ${data.length} records (training service unavailable).`
+            });
+          } catch {}
 
         }
 
@@ -4347,7 +4454,13 @@ const AdminDashboard = () => {
 
         console.warn('XGBoost training failed:', mlError);
 
-        alert(`✅ Successfully loaded ${data.length} training records (ML training service unavailable)`);
+        try {
+          await Swal.fire({
+            icon: 'success',
+            title: 'Training data loaded',
+            text: `Successfully loaded ${data.length} records (ML training service unavailable).`
+          });
+        } catch {}
 
       }
       
@@ -6264,7 +6377,10 @@ const AdminDashboard = () => {
 
                       <div className="job-title">{job.title}</div>
 
-                      <div className={`job-status-badge ${getJobStatus(job) === 'Active' ? 'active' : 'closed'}`}>
+                      <div className={`job-status-badge ${(() => {
+                        const s = getJobStatus(job);
+                        return s === 'Active' ? 'active' : (s === 'Inactive' ? 'inactive' : 'closed');
+                      })()}`}>
 
                         {getJobStatus(job)}
 
@@ -7219,6 +7335,8 @@ const AdminDashboard = () => {
 
                     type="date" 
 
+                    min={editingJob?.applicationStartDate || ''}
+
                     value={editingJob?.applicationEndDate || ''} 
 
                     onChange={(e) => handleJobFieldChange('applicationEndDate', e.target.value)}
@@ -7377,11 +7495,7 @@ const AdminDashboard = () => {
 
             </div>
 
-            <div style={{padding:'12px 20px', backgroundColor:'#fff3cd', border:'1px solid #ffeaa7', borderRadius:'8px', margin:'16px 20px', fontSize:'12px', color:'#856404'}}>
-
-              <strong>Note:</strong> XGBoost models use advanced tree-based algorithms that may include bias terms, feature scaling/normalization, and non-linear transformations beyond simple linear combinations shown in the breakdown.
-
-            </div>
+            
 
             <div className="modal-body">
 
@@ -7705,10 +7819,14 @@ const AdminDashboard = () => {
 
                         <div style={{display:'flex', flexDirection:'column', gap:'8px', fontSize:'14px'}}>
 
-                          <div style={{marginTop:'8px', paddingTop:'8px', borderTop:'1px solid #ddd'}}>
+                      <div style={{marginTop:'8px', paddingTop:'8px', borderTop:'1px solid #ddd'}}>
 
                             <strong>Total Points: {manualTotal.toFixed(2)}</strong>
 
+                          </div>
+
+                          <div style={{padding:'8px 12px', backgroundColor:'#fff3cd', border:'1px solid #ffeaa7', borderRadius:'6px', color:'#856404', fontSize:'12px'}}>
+                            <strong>Note:</strong> XGBoost models use advanced tree-based algorithms that may include bias terms, feature scaling/normalization, and non-linear transformations beyond simple linear combinations shown in the breakdown.
                           </div>
 
                         </div>

@@ -912,33 +912,68 @@ export const uploadCSVTrainingData = async (file, userRole = 'admin') => {
       
       return record;
     }).filter(record => record.trade && record.status);
-    
-    // Deactivate previous training data for this user role
+
+    // Try to merge into existing active training data for this role
+    const existingActive = await getActiveTrainingData(userRole);
+    if (existingActive && existingActive.id) {
+      // Append new rows to existing parsedData without deduplication
+      const prev = Array.isArray(existingActive.parsedData) ? existingActive.parsedData : [];
+      const merged = prev.concat(parsedData);
+
+      // Rebuild CSV content from merged
+      const headerRow = 'Trade,Age,Educational Attainment,Years Of Experience,Skill Score,Status';
+      const toCsvVal = (v) => {
+        const s = String(v ?? '').replace(/"/g, '""');
+        return (/,|\n|\r|"/.test(s)) ? `"${s}"` : s;
+      };
+      const csvContent = [headerRow]
+        .concat(merged.map(r => [
+          toCsvVal(r.trade),
+          toCsvVal(r.age),
+          toCsvVal(r.education),
+          toCsvVal(r.experience),
+          toCsvVal(r.skillScore),
+          toCsvVal(r.status)
+        ].join(',')))
+        .join('\n');
+
+      await updateDoc(doc(db, 'trainingData', existingActive.id), {
+        parsedData: merged,
+        recordCount: merged.length,
+        csvContent: csvContent,
+        fileName: file.name,
+        fileSize: file.size,
+        updatedAt: new Date(),
+        uploadedAt: new Date(), // keep most-recent ordering
+        isActive: true
+      });
+
+      console.log(`CSV training data merged successfully: +${parsedData.length} new, total ${merged.length}`);
+      return { id: existingActive.id, recordCount: merged.length, merged: true };
+    }
+
+    // No active doc to merge into: deactivate any active and create fresh document
     const previousDataQuery = query(
       collection(db, 'trainingData'),
       where('uploadedBy', '==', userRole),
       where('isActive', '==', true)
     );
     const previousDataSnapshot = await getDocs(previousDataQuery);
-    
-    const updatePromises = previousDataSnapshot.docs.map(doc => 
-      updateDoc(doc.ref, { isActive: false })
-    );
+    const updatePromises = previousDataSnapshot.docs.map(doc => updateDoc(doc.ref, { isActive: false }));
     await Promise.all(updatePromises);
-    
-    // Save new training data to Firestore
+
     const docRef = await addDoc(collection(db, 'trainingData'), {
       fileName: file.name,
       fileSize: file.size,
       fileType: 'text/csv',
-      csvContent: csvText, // Store raw CSV content
-      parsedData: parsedData, // Store parsed structured data
+      csvContent: csvText,
+      parsedData: parsedData,
       recordCount: parsedData.length,
       uploadedBy: userRole,
       uploadedAt: new Date(),
       isActive: true
     });
-    
+
     console.log(`CSV training data uploaded successfully to Firestore: ${parsedData.length} records`);
     return { id: docRef.id, recordCount: parsedData.length };
   } catch (error) {
@@ -949,24 +984,53 @@ export const uploadCSVTrainingData = async (file, userRole = 'admin') => {
 
 export const getActiveTrainingData = async (userRole = 'admin') => {
   try {
-    // Simplified query to avoid complex index requirements
-    const trainingDataQuery = query(
+    // Primary: active data uploaded by requested role
+    const primaryQuery = query(
       collection(db, 'trainingData'),
       where('uploadedBy', '==', userRole),
       where('isActive', '==', true)
     );
-    
-    const snapshot = await getDocs(trainingDataQuery);
-    
-    if (snapshot.empty) {
-      return null;
+    const primarySnap = await getDocs(primaryQuery);
+
+    // Helper: robust millis extraction for Date/Timestamp
+    const toMillis = (ts) => {
+      try {
+        if (!ts) return 0;
+        if (typeof ts?.toMillis === 'function') return ts.toMillis();
+        if (typeof ts?.seconds === 'number') return ts.seconds * 1000;
+        const d = new Date(ts);
+        return Number.isNaN(d.getTime()) ? 0 : d.getTime();
+      } catch { return 0; }
+    };
+
+    const pickLatest = (docs) => {
+      if (!docs || docs.length === 0) return null;
+      const items = docs.map(d => ({ id: d.id, ...d.data?.() || d.data }));
+      items.sort((a, b) => toMillis(b.uploadedAt) - toMillis(a.uploadedAt));
+      return items[0] || null;
+    };
+
+    if (!primarySnap.empty) {
+      return pickLatest(primarySnap.docs);
     }
-    
-    // Sort by uploadedAt in JavaScript to avoid complex index
-    const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    docs.sort((a, b) => b.uploadedAt.toMillis() - a.uploadedAt.toMillis());
-    
-    return docs[0]; // Return the most recent
+
+    // Fallback 1: any active data regardless of uploader
+    const activeAnyQuery = query(
+      collection(db, 'trainingData'),
+      where('isActive', '==', true)
+    );
+    const activeAnySnap = await getDocs(activeAnyQuery);
+    if (!activeAnySnap.empty) {
+      return pickLatest(activeAnySnap.docs);
+    }
+
+    // Fallback 2: last uploaded record (role-agnostic)
+    const allSnap = await getDocs(collection(db, 'trainingData'));
+    if (!allSnap.empty) {
+      return pickLatest(allSnap.docs);
+    }
+
+    return null;
   } catch (error) {
     console.error('Error fetching active training data:', error);
     throw error;
@@ -990,32 +1054,48 @@ export const loadTrainingDataFromStorage = async (userRole = 'admin') => {
     
     // Fallback: parse from CSV content if parsedData is not available
     if (trainingData.csvContent) {
-      const lines = trainingData.csvContent.split('\n').filter(line => line.trim());
-      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-      
-      const data = lines.slice(1).map(line => {
-        const values = line.split(',').map(v => v.trim());
-        const record = {};
-        
-        headers.forEach((header, index) => {
-          if (header.includes('trade') || header.includes('job')) {
-            record.trade = values[index];
-          } else if (header.includes('age')) {
-            record.age = parseInt(values[index]) || 30;
-          } else if (header.includes('education')) {
-            record.education = values[index];
-          } else if (header.includes('experience')) {
-            record.experience = parseInt(values[index]) || 0;
-          } else if (header.includes('skill')) {
-            record.skillScore = parseInt(values[index]) || 75;
-          } else if (header.includes('status')) {
-            record.status = values[index].toLowerCase();
+      const splitCsvLine = (line) => {
+        const out = [];
+        let cur = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i];
+          if (ch === '"') {
+            if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; }
+            else { inQuotes = !inQuotes; }
+          } else if (ch === ',' && !inQuotes) {
+            out.push(cur.trim());
+            cur = '';
+          } else {
+            cur += ch;
           }
+        }
+        out.push(cur.trim());
+        return out;
+      };
+
+      const lines = trainingData.csvContent.split(/\r?\n/).filter(l => l && l.trim());
+      if (lines.length === 0) {
+        console.log(`Loaded 0 training records from Firestore CSV content for ${userRole}`);
+        return [];
+      }
+      const headers = splitCsvLine(lines[0]).map(h => h.replace(/^\ufeff/, '').trim().toLowerCase());
+
+      const data = lines.slice(1).map((line) => {
+        const values = splitCsvLine(line);
+        const record = {};
+        headers.forEach((header, index) => {
+          const v = (values[index] ?? '').trim();
+          if (header.includes('trade') || header.includes('job')) record.trade = v;
+          else if (header.includes('age')) record.age = parseInt(v, 10) || 30;
+          else if (header.includes('education')) record.education = v;
+          else if (header.includes('experience')) record.experience = parseInt(v, 10) || 0;
+          else if (header.includes('skill')) record.skillScore = parseInt(v, 10) || 75;
+          else if (header.includes('status')) record.status = v.toLowerCase();
         });
-        
         return record;
-      }).filter(record => record.trade && record.status);
-      
+      }).filter(r => r.trade && (r.status ?? '') !== '');
+
       console.log(`Loaded ${data.length} training records from Firestore CSV content for ${userRole}`);
       return data;
     }
