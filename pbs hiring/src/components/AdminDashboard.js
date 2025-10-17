@@ -3653,7 +3653,6 @@ const AdminDashboard = () => {
           })();
           const city = p.city || '';
           const province = p.province || '';
-          const address = p.address || '';
           const decisionBy = dec.decidedBy || '';
           const decisionDate = (() => {
             try {
@@ -3663,7 +3662,7 @@ const AdminDashboard = () => {
             return '';
           })();
 
-          rows.push({ applicantId: aid, name, email, phone, city, province, address, trade, age, education, experience, skill, status, decisionBy, decisionDate });
+          rows.push({ applicantId: aid, name, email, phone, city, province, trade, age, education, experience, skill, status, decisionBy, decisionDate });
         } catch (e) {
           console.warn('Skipping applicant due to data fetch error:', aid, e);
         }
@@ -3681,7 +3680,6 @@ const AdminDashboard = () => {
         'Phone',
         'City',
         'Province',
-        'Address',
         'Trade',
         'Age',
         'Educational Attainment',
@@ -3707,7 +3705,6 @@ const AdminDashboard = () => {
           r.phone,
           r.city,
           r.province,
-          r.address,
           r.trade,
           r.age,
           r.education,
