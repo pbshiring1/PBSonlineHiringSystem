@@ -1,0 +1,869 @@
+LOGIN.CSS
+
+
+/* General body and container styles */
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f0f2f5;
+  overflow-x: hidden;
+  height: 100vh;
+}
+
+.login-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative; 
+  background-color: #f0f2f5;
+}
+
+/* Left Section Styles */
+.login-left {
+  flex: 2.9;
+  background-size: 80% !important;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+  width: 60%;
+  min-width: 58%;
+}
+
+/* Enhanced blur effect overlay */
+.login-left::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(8, 1, 39, 0.337);
+  backdrop-filter: blur(0.5px);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Curve effect on the right side of login-left */
+.login-left::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -50px;
+  bottom: 0;
+  width: 100px;
+  background-color: #ffffff;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+  transform: translateX(25px);
+  z-index: 1;
+}
+
+.pbs-logo-container {
+  position: absolute;
+  top: 55%;
+  left: 38%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  text-align: center;
+}
+
+.pbs-logo-img {
+  width: 150px !important;
+  height: 130px !important;
+  object-fit: contain;
+  margin-bottom: 30px;
+  margin-left: 140px;
+  animation: rotate3d 6s linear infinite;
+  transform-style: preserve-3d;
+  order: -1;
+}
+
+@keyframes rotate3d {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+.pbs-company-name {
+  color: white;
+  font-size: 45px;
+  font-weight: bold;
+  font-family: 'Roboto', sans-serif;
+  margin-top: 180px;
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
+
+.pbs-engineering-text {
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  margin: 0;
+  text-align: center;
+}
+
+.pbs-services-text {
+  color: #f59700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  margin: 0;
+  text-align: center;
+}
+
+.pbs-tagline {
+  color: white;
+  font-size: 16px;
+  font-weight: 50 !important;
+  font-family: 'Roboto', sans-serif;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  line-height: 1.3;
+  margin-top: 60px;
+  width:450px;
+  opacity: 0.9;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pbs-tagline::after {
+  display: block;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 400;
+  font-family: 'Roboto', sans-serif;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  margin-top: 240px;
+  opacity: 0.8;
+  margin-left : 120px;
+}
+
+/* Desktop-only spacing for brand text */
+@media (min-width: 1025px) {
+  .pbs-company-name { margin-bottom: 100px; }
+  .pbs-tagline { margin-bottom: 100px; margin-top: 0px; }
+}
+
+.pbs-copyright {
+  position: absolute;
+  bottom: 20px;
+  left: 220px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 400;
+  font-family: 'Roboto', sans-serif;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  text-align: left;
+  opacity: 0.8;
+  z-index: 10;
+}
+
+.construction-img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  max-height: 60vh;
+  object-fit: contain;
+  z-index: 2;
+}
+
+/* Right Section Styles */
+.login-right {
+  flex: 1;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 0;
+  padding: 20px;
+  height: 750PX;
+  overflow-y: auto;
+  
+}
+
+.welcome-text {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+  margin-right: 150px;
+}
+
+.subtitle-text {
+  font-size: 1rem;
+  color: #666;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-family: 'Roboto', sans-serif;
+  margin-right: 150px !important;
+}
+
+.login-form {
+  width: 150vh !important;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  box-sizing: border-box;
+  margin-right: 220px !important;
+}
+
+.form-group {
+  width: 100%;
+  margin-bottom: 0rem;
+  position: relative;
+}
+
+.form-group label {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #65676B;
+  transition: all 0.2s ease;
+  pointer-events: none;
+  background: transparent;
+}
+
+
+
+.form-group input[type="password"]:focus + label,
+.form-group input[type="password"]:not(:placeholder-shown) + label {
+  top: 0;
+  transform: translateY(-50%) scale(0.8);
+  color: #1877F2;
+  background-color: #fff;
+  padding: 0 6px;
+  margin-top: 0;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"] {
+  width: 100%;
+  padding: 0.75rem 12px;
+  border: 2px solid #dddfe2;
+  border-radius: 0;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  background-color: #F5F6F7;
+  transition: all 0.2s ease;
+  height: 2.5rem;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="email"]:focus,
+.form-group input[type="password"]:focus {
+  border-color: #1877F2;
+  background-color: #fff;
+  outline: none;
+  box-shadow: 0 0 0 3px #E7F3FF;
+  font-size: 0.9rem;
+}
+
+.form-group input[type="email"]:focus + label,
+.form-group input[type="password"]:focus + label,
+.form-group input[type="text"]:focus + label,
+.form-group input[type="email"]:not(:placeholder-shown) + label,
+.form-group input[type="password"]:not(:placeholder-shown) + label,
+.form-group input[type="text"]:not(:placeholder-shown) + label {
+  top: 0;
+  transform: translateY(-50%) scale(0.8);
+  color: #1877F2;
+  background-color: #fff;
+  padding: 0 6px;
+}
+
+.form-group input[type="text"]::placeholder,
+.form-group input[type="email"]::placeholder,
+.form-group input[type="password"]::placeholder {
+  color: #65676B !important;
+  opacity: 1 !important;
+  font-size: 0.9rem !important;
+}
+
+/* Ensure placeholder text is visible */
+input::placeholder {
+  color: #65676B !important;
+  opacity: 1 !important;
+}
+
+.divider-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+.divider {
+  flex: 1;
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 0 12px;
+}
+
+.divider-text {
+  color: #888;
+  font-size: 0.8rem;
+  font-family: 'Roboto', sans-serif;
+}
+
+.google-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid #bbb;
+  border-radius: 0;
+  padding: 0.6rem 0;
+  font-size: 0.9rem;
+  font-family: 'Roboto', sans-serif;
+  color:#212121;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  transition: background 0.2s, border 0.2s;
+}
+
+.google-btn:hover {
+  background: #f5f5f5;
+  border-color: #888;
+}
+
+.google-logo {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+}
+
+.remember-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 1rem;
+  margin-top: 0.5rem;
+}
+
+.remember-container input[type="checkbox"] {
+  margin-right: 6px;
+  accent-color: #b38102;
+  width: 14px;
+  height: 14px;
+}
+
+.remember-container label {
+  color: #555;
+  font-size: 0.8rem;
+}
+
+.login-btn {
+  width: 100%;
+  background: #f59700;
+  color: #fff;
+  border: none;
+  border-radius: 0;
+  padding: 0.6rem 0;
+  font-size: 1rem;
+  font-weight: bold;
+  font-family: 'Roboto', sans-serif;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  transition: background 0.2s;
+}
+
+.login-btn:hover {
+  background: #e68900;
+}
+
+.signup-link {
+  text-align: center;
+  margin-top: 0.5rem;
+  margin-right: 150px;
+}
+
+.signup-text {
+  color: #1877F2;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-family: 'Roboto', sans-serif;
+}
+
+.signup-text:hover {
+  text-decoration: underline;
+}
+
+.admin-hint {
+  text-align: center;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 0;
+  border: 1px solid #e9ecef;
+}
+
+.admin-hint-text {
+  color: #6c757d;
+  font-size: 0.8rem;
+  font-family: 'Roboto', sans-serif;
+}
+
+.admin-hint-text b {
+  color: #e67e22;
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .login-container {
+    flex-direction: row; /* keep two-column layout */
+    height: auto;
+  }
+  
+  .login-left {
+    flex: 1;
+    height: auto;
+    padding: 12px;
+  }
+  
+  .pbs-logo-img {
+    top: 10px;
+    left: 10px;
+    width: 70px;
+    height: 70px;
+    margin-left: 0;
+    margin-bottom: 16px;
+  }
+  
+  .construction-img {
+    width: 50%;
+    max-height: 180px;
+  }
+  
+  .login-right {
+    flex: 1;
+    padding: 12px;
+    max-height: none;
+  }
+  
+  .welcome-text {
+    font-size: 1.4rem;
+    margin-right: 0;
+  }
+  
+  .subtitle-text {
+    font-size: 0.9rem;
+    margin-right: 0;
+    width: 100%;
+    margin-left: 0;
+    padding: 0 12px;
+  }
+  
+  .login-form {
+    width: 90% !important; /* override desktop width */
+    max-width: 360px;
+    padding: 1rem 0.5rem;
+    margin-right: 0 !important;
+  }
+
+  /* PBS brand text sizing adjustments */
+  .pbs-company-name { font-size: 32px; margin: 0; }
+  .pbs-engineering-text { font-size: 0.9em; }
+  .pbs-services-text { font-size: 0.9em; }
+  .pbs-tagline { font-size: 14px; width: 100%; margin: 12px 0 0 0; }
+  /* Align logo container similar to desktop */
+  .pbs-logo-container { top: 50%; left: 45%; transform: translate(-50%, -50%); width: auto; }
+  .pbs-logo-img { margin-left: 0; }
+  .pbs-company-name { margin-top: 12px; margin-right: 0; margin-left: 0; }
+  .pbs-tagline { width: min(90%, 360px); margin-left: 0; }
+}
+
+@media (max-width: 768px) {
+  .login-container { flex-direction: row; align-items: stretch; }
+  .login-left { height: auto; padding: 10px; flex: 0 0 48%; min-width: 0; background-size: cover !important; background-position: left center !important; background-repeat: no-repeat !important; }
+  .login-left::after { width: 36px; right: -18px; }
+  
+  .pbs-logo-img { display: none !important; }
+  /* Hide logo image on mobile/tablet */
+  
+  .construction-img {
+    width: 60%;
+    max-height: 140px;
+  }
+  
+  .login-right { max-height: none; height: auto; flex: 0 0 52%; min-width: 0; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+  .login-right { border-radius: 0; }
+  
+  .welcome-text {
+    font-size: 1.2rem;
+    margin-right: 0;
+  }
+  
+  .subtitle-text {
+    font-size: 0.85rem;
+    margin-right: 0;
+  }
+  
+  .login-form {
+    width: 92% !important;
+    max-width: 320px;
+    margin-right: 0 !important;
+  }
+  
+  .form-group input[type="text"],
+  .form-group input[type="email"],
+  .form-group input[type="password"] {
+    height: 2.25rem;
+    font-size: 0.85rem;
+  }
+
+  /* PBS brand text sizing for tablet */
+  .pbs-company-name { font-size: 28px; margin-top: 18px; }
+  .pbs-engineering-text { font-size: 0.85em; }
+  .pbs-services-text { font-size: 0.85em; }
+  .pbs-tagline { font-size: 13px; }
+  /* Align logo container similar to desktop */
+  .pbs-logo-container { top: 50%; left: 42%; transform: translate(-50%, -50%); }
+  .pbs-logo-img { margin-left: 0; margin-bottom: 100px; }
+  .pbs-company-name { margin-top: 10px; margin-right: 0; margin-left: 0; }
+  .pbs-tagline { width: min(92%, 320px); }
+
+  .signup-link { margin-right: 0; }
+  .forgot-password { margin-right: 0; }
+  .forgot-password-link { margin-left: 0; }
+  .forgot-password { width: 100%; }
+  .forgot-password-link { display: block; width: 100%; text-align: center; padding: 8px 0; }
+}
+
+@media (max-width: 480px) {
+  .login-container { flex-direction: row; align-items: stretch; }
+  .login-left { height: auto; padding: 8px; flex: 0 0 46%; min-width: 0; background-size: cover !important; background-position: left center !important; background-repeat: no-repeat !important; }
+  .login-left::after { width: 24px; right: -12px; }
+  
+  /* Ensure clean vertical spacing between logo and name */
+  .pbs-logo-container { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .pbs-logo-img { display: none !important; }
+  
+  .construction-img {
+    width: 70%;
+    max-height: 120px;
+  }
+  
+  .login-right { max-height: none; height: auto; padding: 10px; flex: 0 0 54%; min-width: 0; border-radius: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+  
+  .welcome-text {
+    font-size: 1.05rem;
+    margin-right: 0;
+  }
+  
+  .subtitle-text {
+    font-size: 0.8rem;
+    margin-right: 0;
+    width: 100%;
+    margin-left: 0;
+    padding: 0 10px;
+  }
+  
+  .login-form {
+    width: 94% !important;
+    max-width: 300px;
+    padding: 0.75rem 0.25rem;
+    margin-right: 0 !important;
+  }
+  
+  .form-group {
+    margin-bottom: 0.75rem;
+  }
+  
+  .form-group input[type="text"],
+  .form-group input[type="email"],
+  .form-group input[type="password"] {
+    height: 2rem;
+    font-size: 0.8rem;
+    padding: 0.5rem 10px;
+  }
+  
+  .google-btn,
+  .login-btn {
+    padding: 0.5rem 0;
+    font-size: 0.9rem;
+  }
+
+  /* PBS brand text sizing for mobile */
+  .pbs-company-name { font-size: 30px !important; margin-top: 0px !important; margin-right: 0 !important; margin-left: 0 !important; text-align: center; }
+  .pbs-engineering-text { font-size: 0.8em; }
+  .pbs-services-text { font-size: 0.8em; }
+  .pbs-tagline { font-size: 13px; width: min(95%, 320px); margin: 18px auto 0; text-align: center; }
+  /* Align logo container similar to desktop */
+  .pbs-logo-container { top: 45%; left: 50%; transform: translate(-50%, -50%); }
+  .pbs-logo-img { margin-left: 0 !important; }
+  .pbs-company-name { margin-top: 0px !important; margin-right: 0 !important; margin-left: 0 !important; }
+  .pbs-tagline { width: min(94%, 300px); }
+
+  .signup-link { margin-right: 0; }
+  .forgot-password { margin-right: 0; }
+  .forgot-password-link { margin-left: 0; }
+  .forgot-password { width: 100%; }
+  .forgot-password-link { display: block; width: 100%; text-align: center; padding: 8px 0; }
+}
+
+/* ultra-small phones */
+@media (max-width: 380px) {
+  .login-left { flex-basis: 44%; background-size: cover !important; background-position: left center !important; background-repeat: no-repeat !important; }
+  .login-left::after { width: 18px; right: -9px; }
+  /* Ensure clean vertical spacing between logo and name */
+  .pbs-logo-container { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .pbs-logo-img { display: none !important; }
+  .pbs-company-name { font-size: 26px !important; margin-top: 0px !important; text-align: center; }
+  .pbs-tagline { font-size: 12px; width: min(96%, 300px); margin: 14px auto 0; text-align: center; }
+  .login-right { flex-basis: 56%; border-radius: 0; }
+  .welcome-text { font-size: 1rem; }
+  .subtitle-text { font-size: 0.78rem; }
+  .subtitle-text { width: 100%; margin: 0 auto 1rem; padding: 0 8px; text-align: center; }
+  .login-form { max-width: 280px; }
+  /* Align logo container similar to desktop */
+  .pbs-logo-container { top: 45%; left: 50%; transform: translate(-50%, -50%); }
+  .pbs-logo-img { margin-left: 0 !important; }
+  .pbs-company-name { margin-top: 0px !important; }
+}
+
+.error-message {
+  background-color: #ffebee;
+  border: 1px solid #ffcdd2;
+  border-radius: 0;
+  padding: 0.5rem;
+  margin-bottom: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Align login error with Google button and reduce width on desktop */
+.login-right > .error-message {
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: 220px; /* matches .login-form desktop offset */
+}
+
+.error-text {
+  color: #c62828;
+  font-size: 0.8rem;
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+}
+
+input.error {
+  border-color: #f44336;
+}
+
+input.error:focus {
+  border-color: #f44336;
+  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
+}
+
+.login-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.forgot-password {
+  text-align: center !important;
+  margin-bottom: 10px;
+  margin-right: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.forgot-password-link {
+  background: none;
+  border: none;
+  color: #667eea;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  margin: 0;
+  margin-left: 100px;
+}
+
+.forgot-password-link:hover {
+  color: #5a6fd8;
+}
+
+.back-btn {
+  background: #f8f9fa;
+  color: #666;
+  border: 2px solid #e1e5e9;
+  padding: 12px 30px;
+  border-radius: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 15px;
+  width: 100%;
+}
+
+.back-btn:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.message {
+  padding: 12px 16px;
+  border-radius: 0;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Reset Password Styles */
+.reset-password-container .form-group {
+  margin-right: 150px;
+  width: 360px;
+}
+
+.reset-password-container .login-btn {
+  margin-right:150px ;
+  width: 360px;
+}
+
+.reset-password-container .back-btn {
+  width:359px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #fff !important;
+  border: 1px solid #bbb !important;
+  border-radius: 6px !important;
+  padding: 0.6rem 0 !important;
+  font-size: 0.9rem !important;
+  font-family: 'Roboto', sans-serif !important;
+  color: #212121 !important;
+  cursor: pointer !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 1rem !important;
+  transition: background 0.2s, border 0.2s !important;
+  margin-right: 100px !important;
+  font-weight: normal !important;
+  position: relative !important;
+  margin-right: 150px !important;
+}
+
+.reset-password-container .back-btn::before {
+  content: "←" !important;
+  margin-right: 8px !important;
+  font-size: 1rem !important;
+  font-weight: bold !important;
+}
+
+.reset-password-container .message {
+  margin-left: 0.1px;
+  background: #fff !important;
+  border: 1px solid #ccc !important;
+  border-radius: 0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  padding: 8px 12px !important;
+  font-size: 0.875rem !important;
+  color: #333 !important;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  max-width: 300px !important;
+}
+
+.reset-password-container .message::before {
+  content: "⚠" !important;
+  color: #ff8c00 !important;
+  font-size: 1rem !important;
+  font-weight: bold !important;
+  flex-shrink: 0 !important;
+}
+
+.reset-password-container .success-message {
+  background: #fff !important;
+  border: 1px solid #ccc !important;
+  color: #333 !important;
+}
+
+.reset-password-container .success-message::before {
+  content: "✓" !important;
+  color: #28a745 !important;
+}
+
+.reset-password-container .back-btn:hover {
+  background: #f5f5f5 !important;
+  border-color: #888 !important;
+}
+
+.reset-password-container .welcome-text {
+  margin-left: 0;
+  margin-right: 150px;
+  width: 360px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.reset-password-container .subtitle-text {
+  margin-left: 0;
+  margin-right: 150px;
+  width: 360px;
+  text-align: left;
+}
+
+
+/* Responsive overrides for Reset Password */
+@media (max-width: 768px) {
+  .reset-password-container { padding: 12px; }
+  .reset-password-container .welcome-text,
+  .reset-password-container .subtitle-text { margin-left: 0; text-align: center; }
+  .reset-password-container .welcome-text { width: 100%; margin: 0 auto 0.5rem; padding: 0 12px; margin-right: 0; white-space: normal; }
+  .reset-password-container .subtitle-text { width: 100%; margin: 0 auto 1rem; padding: 0 12px; }
+  .reset-password-container .form-group { margin-right: 0; width: 100%; max-width: 420px; margin-left: 0; }
+  .reset-password-container .login-btn,
+  .reset-password-container .back-btn { width: 100% !important; margin-right: 0 !important; }
+  .reset-password-container .message { max-width: 100% !important; }
+}
+
+@media (max-width: 480px) {
+  .reset-password-container { padding: 10px; }
+  .reset-password-container .form-group { max-width: 100%; }
+  .reset-password-container .login-btn,
+  .reset-password-container .back-btn { width: 100% !important; }
+  .reset-password-container .welcome-text { text-align: center; width: 100%; margin: 0 auto 0.5rem; padding: 0 10px; margin-right: 0; white-space: normal; }
+  .reset-password-container .subtitle-text { text-align: center; width: 100%; margin: 0 auto 1rem; padding: 0 10px; }
+}
