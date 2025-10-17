@@ -13,6 +13,9 @@ const Settings = ({ onClose, userName, userEmail }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleDeleteAccount = () => {
     if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
@@ -218,37 +221,106 @@ const Settings = ({ onClose, userName, userEmail }) => {
                 </div>
               )}
               
-              <div className="password-input-group">
+              <div className="password-input-group" style={{ position: 'relative' }}>
                 <label className="password-input-label">Current password</label>
                 <input
-                  type="password"
+                  type={showCurrent ? 'text' : 'password'}
                   className="password-input-field"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder="Enter current password"
+                  style={{ paddingRight: '40px' }}
                 />
+                {currentPassword && (
+                  <button
+                    type="button"
+                    aria-label={showCurrent ? 'Hide current password' : 'Show current password'}
+                    onClick={() => setShowCurrent(prev => !prev)}
+                    style={{ position: 'absolute', right: '10px', top: '54%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', color: '#6b7280' }}
+                  >
+                    {showCurrent ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20C7 20 2.73 16.11 1 12c.73-1.67 1.87-3.21 3.3-4.5" />
+                        <path d="M22.54 11.88c-.64-1.6-1.7-3.06-3.04-4.24A10.94 10.94 0 0 0 12 4c-.86 0-1.69.1-2.47.29" />
+                        <path d="M14.12 14.12A3 3 0 0 1 9.88 9.88" />
+                        <path d="M1 1l22 22" />
+                      </svg>
+                    )}
+                  </button>
+                )}
               </div>
               
-              <div className="password-input-group">
+              <div className="password-input-group" style={{ position: 'relative' }}>
                 <label className="password-input-label">New password</label>
                 <input
-                  type="password"
+                  type={showNew ? 'text' : 'password'}
                   className="password-input-field"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Enter new password"
+                  style={{ paddingRight: '40px' }}
                 />
+                {newPassword && (
+                  <button
+                    type="button"
+                    aria-label={showNew ? 'Hide new password' : 'Show new password'}
+                    onClick={() => setShowNew(prev => !prev)}
+                    style={{ position: 'absolute', right: '10px', top: '54%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', color: '#6b7280' }}
+                  >
+                    {showNew ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20C7 20 2.73 16.11 1 12c.73-1.67 1.87-3.21 3.3-4.5" />
+                        <path d="M22.54 11.88c-.64-1.6-1.7-3.06-3.04-4.24A10.94 10.94 0 0 0 12 4c-.86 0-1.69.1-2.47.29" />
+                        <path d="M14.12 14.12A3 3 0 0 1 9.88 9.88" />
+                        <path d="M1 1l22 22" />
+                      </svg>
+                    )}
+                  </button>
+                )}
               </div>
               
-              <div className="password-input-group">
+              <div className="password-input-group" style={{ position: 'relative' }}>
                 <label className="password-input-label">Confirm new password</label>
                 <input
-                  type="password"
+                  type={showConfirm ? 'text' : 'password'}
                   className="password-input-field"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm new password"
+                  style={{ paddingRight: '40px' }}
                 />
+                {confirmPassword && (
+                  <button
+                    type="button"
+                    aria-label={showConfirm ? 'Hide confirm password' : 'Show confirm password'}
+                    onClick={() => setShowConfirm(prev => !prev)}
+                    style={{ position: 'absolute', right: '10px', top: '54%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', color: '#6b7280' }}
+                  >
+                    {showConfirm ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20C7 20 2.73 16.11 1 12c.73-1.67 1.87-3.21 3.3-4.5" />
+                        <path d="M22.54 11.88c-.64-1.6-1.7-3.06-3.04-4.24A10.94 10.94 0 0 0 12 4c-.86 0-1.69.1-2.47.29" />
+                        <path d="M14.12 14.12A3 3 0 0 1 9.88 9.88" />
+                        <path d="M1 1l22 22" />
+                      </svg>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
             

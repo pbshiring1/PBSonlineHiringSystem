@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import './HomePage.css';
-import constructionImage from './pic/portrait-engineers-work-hours-job-site.jpg';
+import constructionImage from './pic/unnamed (1).webp';
 import pbsLogo from './pic/488604347_2675430962655935_1675751460889163498_n-removebg-preview.png';
 
 const HomePage = () => {
