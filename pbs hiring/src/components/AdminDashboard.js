@@ -4881,9 +4881,6 @@ const AdminDashboard = () => {
                 </div>
 
                 <div className="section-actions">
-
-                  <i className="fas fa-ellipsis-v"></i>
-
                 </div>
 
               </div>
