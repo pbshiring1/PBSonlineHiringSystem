@@ -3788,7 +3788,7 @@
 
 .ranked-candidates-content .um-table-header {
   display: grid;
-  grid-template-columns: 56px 1.8fr 1.1fr 1fr 1fr 1fr 1fr 1.5fr;
+  grid-template-columns: 56px 1.8fr 1.1fr 0.7fr 0.8fr 1.2fr; /* Rank | Candidate | Position | Details | Score | Actions */
   padding: 12px 20px;
   background: #f9fafb;
   border-bottom: 1px solid #e5e7eb;
@@ -3816,7 +3816,7 @@
 
 .ranked-candidates-content .um-table-row {
   display: grid;
-  grid-template-columns: 56px 1.8fr 1.1fr 1fr 1fr 1fr 1fr 1.5fr;
+  grid-template-columns: 56px 1.8fr 1.1fr 0.7fr 0.8fr 1.2fr; /* Rank | Candidate | Position | Details | Score | Actions */
   padding: 14px 20px;
   border-bottom: 1px solid #eef2f7;
   align-items: center;
@@ -4188,7 +4188,7 @@
 
 .ranked-candidates-content .um-table-header {
   display: grid;
-  grid-template-columns: 80px 1.8fr 1.2fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 80px 1.8fr 1.2fr 0.7fr 0.8fr 1.2fr;
   padding: 12px 20px;
   background: #f9fafb;
   border-bottom: 1px solid #e5e7eb;
@@ -4219,7 +4219,7 @@
 
 .ranked-candidates-content .um-table-row {
   display: grid;
-  grid-template-columns: 80px 1.8fr 1.2fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 80px 1.8fr 1.2fr 0.7fr 0.8fr 1.2fr;
   padding: 14px 20px;
   border-bottom: 1px solid #eef2f7;
   align-items: center;
@@ -4379,10 +4379,11 @@
   color: #047857;
 }
 
-.ranked-candidates-content .um-action-link.reject {
-  background: #e11d48; /* red-600 */
-  color: #ffffff;
-  border-color: #e11d48;
+.ranked-candidates-content .um-action-link.reject,
+.ranked-candidates-content button.um-action-link.reject {
+  background: #fecaca !important; /* red-200 */
+  color: #991b1b !important; /* red-800 for readable text */
+  border-color: #fca5a5 !important; /* red-300 */
   border-radius: 8px; /* rectangular */
   padding: 8px 14px;
   gap: 8px;
@@ -4394,10 +4395,11 @@
   letter-spacing: 0.5px;
 }
 
-.ranked-candidates-content .um-action-link.reject:hover {
-  background: #be123c; /* red-700 */
-  border-color: #be123c;
-  color: #ffffff;
+.ranked-candidates-content .um-action-link.reject:hover,
+.ranked-candidates-content button.um-action-link.reject:hover {
+  background: #f87171 !important; /* red-400 */
+  border-color: #ef4444 !important; /* red-500 */
+  color: #ffffff !important;
 }
 
 /* Responsive adjustments for ranked candidates */

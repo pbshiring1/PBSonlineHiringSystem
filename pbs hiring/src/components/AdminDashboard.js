@@ -5449,7 +5449,7 @@ const AdminDashboard = () => {
 
                   >
 
-                    {isRunningML ? 'Training...' : 'XGBoost'}
+                    {isRunningML ? 'Training...' : 'Score'}
 
                   </button>
 
@@ -5567,9 +5567,9 @@ const AdminDashboard = () => {
 
                   <div className="um-th position">Position</div>
 
-                  <div className="um-th weights">Weights</div>
+                  <div className="um-th weights">Details</div>
 
-                  <div className="um-th score">XGBoost Score</div>
+                  <div className="um-th score">Score</div>
 
                   <div className="um-th actions">Actions</div>
 
