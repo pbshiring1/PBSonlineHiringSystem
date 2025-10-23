@@ -3,11 +3,14 @@ import { Link } from 'react-router-dom';
 import './HomePage.css';
 import constructionImage from './pic/unnamed (1).webp';
 import pbsLogo from './pic/488604347_2675430962655935_1675751460889163498_n-removebg-preview.png';
+import { getActiveJobs } from '../firebase';
 
 const HomePage = () => {
   const [scrolled, setScrolled] = useState(false);
   const [visibleElements, setVisibleElements] = useState(new Set());
   const [counters, setCounters] = useState({ uptime: 0, users: 0, support: 0 });
+  const [jobs, setJobs] = useState([]);
+  const [loadingJobs, setLoadingJobs] = useState(true);
   
   const heroRef = useRef(null);
   const featuresRef = useRef(null);
@@ -43,6 +46,198 @@ const HomePage = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Load active jobs to display in feature cards as simplified job cards
+  useEffect(() => {
+    const loadJobs = async () => {
+      try {
+        const activeJobs = await getActiveJobs();
+        if (Array.isArray(activeJobs)) {
+          // Filter out expired jobs
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const validJobs = activeJobs.filter(job => {
+            if (!job?.applicationEndDate) return true;
+            const endDate = job.applicationEndDate?.seconds
+              ? new Date(job.applicationEndDate.seconds * 1000)
+              : new Date(job.applicationEndDate);
+            endDate.setHours(0, 0, 0, 0);
+            return endDate >= today;
+          });
+          const formatted = validJobs.map(job => ({
+            id: job.id,
+            title: job.title,
+            description: job.description || '',
+            applicationStartDate: job.applicationStartDate || null,
+            applicationEndDate: job.applicationEndDate || null
+          }));
+          setJobs(formatted);
+        } else {
+          setJobs([]);
+        }
+      } catch (e) {
+        setJobs([]);
+      } finally {
+        setLoadingJobs(false);
+      }
+    };
+    loadJobs();
+  }, []);
+
+  // Helpers reused from ApplicantDashboard for Qualifications and Requirements
+  const getQualificationsForJob = (jobTitle) => {
+    const title = (jobTitle || '').toString().toUpperCase();
+    switch (title) {
+      case 'ELECTRICAL ENGINEER':
+        return [
+          "Bachelor's degree in Electrical Engineering",
+          '3+ years experience',
+          'Professional license preferred'
+        ];
+      case 'ELECTRONICS ENGINEER':
+        return [
+          "Bachelor's degree in Electronics or Electrical Engineering",
+          '3+ years experience',
+          'Professional license preferred'
+        ];
+      case 'PIPE FITTER':
+        return [
+          'Relevant technical diploma or certification',
+          '3+ years experience',
+          'Knowledge of construction safety practices'
+        ];
+      case 'TECHNICIAN':
+        return [
+          'Relevant technical diploma or certification',
+          '3+ years experience',
+          'Hands-on experience with tools and equipment'
+        ];
+      case 'NETWORK TECHNICIAN':
+        return [
+          "Bachelor's degree in Information Technology or related field",
+          '3+ years experience',
+          'Knowledge of networking protocols and hardware'
+        ];
+      case 'ELECTRICIAN':
+        return [
+          'Licensed or certified electrician',
+          '3+ years experience',
+          'Knowledge of electrical safety and NEC standards'
+        ];
+      case 'HELPER':
+        return [
+          'High school diploma or equivalent',
+          'Physically fit',
+          'Willingness to learn and assist skilled workers'
+        ];
+      case 'WELDER':
+        return [
+          'Certification in welding or related trade',
+          '3+ years experience',
+          'Knowledge of safety procedures and equipment handling'
+        ];
+      case 'PAINTER':
+        return [
+          "Bachelor's degree in Painting or related field",
+          '3+ years experience',
+          'Professional license preferred'
+        ];
+      case 'CCTV TECHNICIAN':
+        return [
+          'Relevant technical diploma or certification',
+          '3+ years experience',
+          'Experience installing and maintaining CCTV systems'
+        ];
+      case 'MASON':
+        return [
+          'Relevant technical diploma or certification',
+          '3+ years experience',
+          'Knowledge of construction safety and proper material handling'
+        ];
+      default:
+        return [
+          `Bachelor's degree in ${(jobTitle || '').split(' ')[0]} Engineering`,
+          '3+ years experience',
+          'Professional license preferred'
+        ];
+    }
+  };
+
+  const getJobDocumentRequirements = (jobTitle) => {
+    const commonDocuments = [
+      'Updated Resume / Bio Data',
+      "Valid Government ID (National ID, Driver's License, etc.)",
+      'Barangay Clearance',
+      'NBI or Police Clearance',
+      'Medical Certificate / Fit-to-Work',
+      'Birth Certificate (PSA)',
+      'SSS, PhilHealth, Pag-IBIG, and TIN Numbers'
+    ];
+    const title = (jobTitle || '').toString().toUpperCase();
+    let professionalCertificate;
+    switch (title) {
+      case 'ELECTRICAL ENGINEER':
+        professionalCertificate = 'Certificate: PRC License / ID (Registered Electrical Engineer or Master Electrician), Board Certificate';
+        break;
+      case 'ELECTRONICS ENGINEER':
+        professionalCertificate = 'Certificate: PRC License / ID (Electronics Engineer), Board Certificate';
+        break;
+      case 'TECHNICIAN':
+        professionalCertificate = 'Certificate: TESDA NC II or NC III (based on specialization)';
+        break;
+      case 'CCTV TECHNICIAN':
+        professionalCertificate = 'Certificate: TESDA NC II (Electronic Products Assembly & Servicing or CCTV Installation)';
+        break;
+      case 'NETWORK TECHNICIAN':
+        professionalCertificate = 'Certificate: TESDA NC II (Computer Systems Servicing)';
+        break;
+      case 'WELDER':
+        professionalCertificate = 'Certificate: TESDA NC I or NC II (Shielded Metal Arc Welding – SMAW)';
+        break;
+      case 'MASON':
+        professionalCertificate = 'Certificate: TESDA NC II (Masonry) (optional but preferred)';
+        break;
+      case 'PIPE FITTER':
+        professionalCertificate = 'Certificate: TESDA NC II (Pipefitting)';
+        break;
+      case 'ELECTRICIAN':
+        professionalCertificate = 'Certificate: TESDA NC II (Electrical Installation & Maintenance) / RME License (optional)';
+        break;
+      case 'PAINTER':
+        professionalCertificate = 'Certificate: TESDA NC II (Painting – optional but preferred)';
+        break;
+      case 'HELPER':
+        professionalCertificate = 'Certificate: None required';
+        break;
+      default:
+        professionalCertificate = 'Certificate or License relevant to the position (if applicable)';
+        break;
+    }
+    return [...commonDocuments, professionalCertificate];
+  };
+
+  // Availability status consistent with AdminDashboard
+  const getJobAvailabilityStatus = (job) => {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const start = job?.applicationStartDate;
+      if (start) {
+        const startDate = start?.seconds ? new Date(start.seconds * 1000) : new Date(start);
+        startDate.setHours(0, 0, 0, 0);
+        if (startDate > today) return 'Inactive';
+      }
+      const end = job?.applicationEndDate;
+      if (end) {
+        const endDate = end?.seconds ? new Date(end.seconds * 1000) : new Date(end);
+        endDate.setHours(0, 0, 0, 0);
+        return endDate >= today ? 'Active' : 'Closed';
+      }
+      return 'Active';
+    } catch {
+      return 'Active';
+    }
+  };
+
   // Animate counters
   useEffect(() => {
     if (visibleElements.has(0) && counters.uptime === 0) {
@@ -75,23 +270,7 @@ const HomePage = () => {
     }
   };
 
-  const features = [
-    {
-      icon: '⚡',
-      title: 'Efficient Project Execution',
-      description: 'Timely and seamless delivery of engineering services to keep your projects on schedule.'
-    },
-    {
-      icon: '✅',
-      title: 'Quality and Safety Assurance',
-      description: 'Strict adherence to industry standards, ensuring the highest levels of quality, safety, and reliability.'
-    },
-    {
-      icon: '📐',
-      title: 'Expert Engineering Support',
-      description: 'A team of skilled professionals providing reliable guidance and tailored solutions throughout every stage of your project.'
-    }
-  ];
+  // Features grid will display current active jobs instead of static feature cards
 
   return (
     <div className="homepage">
@@ -105,7 +284,7 @@ const HomePage = () => {
           
           <div className="nav-menu" role="menubar">
             <button onClick={() => scrollToSection('home')} className="nav-link" role="menuitem" aria-label="Go to home section">Home</button>
-            <button onClick={() => scrollToSection('features')} className="nav-link" role="menuitem" aria-label="Go to features section">Features</button>
+            <button onClick={() => scrollToSection('features')} className="nav-link" role="menuitem" aria-label="Go to career section">Career</button>
             <button onClick={() => scrollToSection('about')} className="nav-link" role="menuitem" aria-label="Go to about section">About</button>
             <button onClick={() => scrollToSection('contact')} className="nav-link" role="menuitem" aria-label="Go to contact section">Contact</button>
           </div>
@@ -174,24 +353,63 @@ const HomePage = () => {
       <section className="features" id="features" ref={featuresRef} aria-labelledby="features-title">
         <div className="container">
           <div className={`section-header ${visibleElements.has(1) ? 'animate-in' : ''}`} style={{ textAlign: 'center' }}>
-            <h2 id="features-title" style={{ textAlign: 'center', margin: '0 auto' }}>Why Choose PBS Construction Engineering Services?</h2>
+            <h2 id="features-title" style={{ textAlign: 'center', margin: '0 auto' }}>Explore Career Opportunities</h2>
           </div>
           <div className="features-grid" role="list">
-            {features.map((feature, index) => (
-              <article 
-                key={index} 
-                className={`feature-card ${visibleElements.has(1) ? 'animate-in' : ''}`}
-                style={{ animationDelay: `${index * 0.1}s` }}
-                role="listitem"
-              >
-                <div className="feature-icon" aria-hidden="true">
-                  {feature.icon}
-                </div>
-                <h3>{feature.title}</h3>
-                <p>{feature.description}</p>
-                <div className="feature-hover-effect" aria-hidden="true"></div>
-              </article>
-            ))}
+            {loadingJobs ? (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center' }}>Loading jobs...</div>
+            ) : jobs.length === 0 ? (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center' }}>No jobs available</div>
+            ) : (
+              jobs.map((job, index) => (
+                <article
+                  key={job.id || index}
+                  className={`feature-card ${visibleElements.has(1) ? 'animate-in' : ''}`}
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                  role="listitem"
+                >
+                  <div className="job-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
+                    <div className="job-card-title">{job.title}</div>
+                    {(() => {
+                      const status = getJobAvailabilityStatus(job);
+                      if (status === 'Active') {
+                        return (
+                          <div className="job-status-indicator active" title="Available">
+                            <span className="job-status-dot"></span>
+                            <span className="job-status-text">Available</span>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
+                  <div className="job-card-description">{job.description}</div>
+                  <div className="job-card-requirements">
+                    <div className="requirements-title">Qualifications:</div>
+                    <ul className="requirements-list">
+                      {getQualificationsForJob(job.title).map((q, i) => (
+                        <li key={`q-${i}`}>{q}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="job-card-documents">
+                    <div className="requirements-title">Requirements:</div>
+                    <ul className="requirements-list">
+                      {getJobDocumentRequirements(job.title).map((doc, i) => (
+                        <li key={`doc-${i}`}>{doc}</li>
+                      ))}
+                    </ul>
+                    <button
+                      type="button"
+                      className="apply-now-bottom-btn"
+                      onClick={() => (window.location.href = '/login')}
+                    >
+                      Apply now
+                    </button>
+                  </div>
+                </article>
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -217,7 +435,7 @@ const HomePage = () => {
             </div>
             <nav className="footer-section" aria-label="Job seeker navigation">
               <h4>For Job Seekers</h4>
-              <button onClick={() => scrollToSection('features')} className="footer-link" aria-label="View platform features">Features</button>
+              <button onClick={() => scrollToSection('features')} className="footer-link" aria-label="View career section">Career</button>
               <Link to="/signup" className="footer-link" aria-label="Create a new account">Get Started</Link>
               <Link to="/login" className="footer-link" aria-label="Sign in to your account">Sign In</Link>
             </nav>

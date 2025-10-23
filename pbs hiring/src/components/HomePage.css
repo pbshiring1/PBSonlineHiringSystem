@@ -555,7 +555,7 @@ body {
 
   .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
 }
 
@@ -602,6 +602,67 @@ body {
   .feature-card:hover p {
     color: #f97316;
   }
+
+/* Apply Now button used in HomePage feature cards */
+.apply-now-header-btn {
+  background: #E67E22;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.apply-now-header-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(230, 126, 34, 0.25);
+}
+
+/* Bottom Apply button inside requirements list for HomePage cards */
+.apply-now-bottom-btn {
+  background: #E67E22;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-weight: 700;
+  width: 100%;
+  margin-top: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.apply-now-bottom-btn:hover {
+  background: #E67E22;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(230, 126, 34, 0.35);
+}
+
+/* Job availability status pill */
+.feature-card .job-status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 9999px;
+  background: #ecfdf5;
+  border: 1px solid #bbf7d0;
+}
+
+.feature-card .job-status-indicator .job-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.feature-card .job-status-indicator .job-status-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: #065f46;
+}
   
   .feature-icon {
     font-size: 3rem;
@@ -613,13 +674,15 @@ body {
   .feature-card h3 {
     font-size: 1.5rem;
     font-weight: 600;
-    margin-bottom: 1rem;
+  margin-bottom: 1rem;
     color: #1f2937;
   }
   
-  .feature-card p {
+.feature-card p,
+.feature-card .job-card-description {
     color: #6b7280;
     line-height: 1.6;
+  margin-top: 8px;
   }
   
   /* CTA Section */
