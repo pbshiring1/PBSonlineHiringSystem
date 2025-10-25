@@ -1739,9 +1739,9 @@
   background: linear-gradient(90deg, #ff9f1a 0%, #ffb347 100%);
   color: #fff;
   border: none;
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
+  border-radius: 9999px; /* pill */
+  padding: 0.35rem 0.9rem; /* thinner */
+  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1764,21 +1764,26 @@
 
 /* File cards (match Certification) */
 .id-verification-container .file-card-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap; /* single line */
   gap: clamp(0.4rem, 1.5vw, 0.75rem);
   width: 100%;
-  overflow-y: auto;
+  overflow-x: auto; /* horizontal scroll when overflowing */
+  overflow-y: hidden;
   padding: clamp(0.3rem, 1vw, 0.6rem);
-  max-height: min(34vh, 280px);
+  padding-bottom: 2.2rem; /* reserve space for bottom-centered browse button */
+  max-height: none;
   flex-shrink: 0;
-  align-items: start;
-  justify-content: center; /* center the grid as a whole */
-  justify-items: center;   /* center items within their grid cells */
+  align-items: stretch;
+  justify-content: flex-start;
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #bdbdbd #f1f1f1; /* Firefox: thumb track */
 }
 
 .id-verification-container .file-card-list::-webkit-scrollbar {
-  width: 6px;
+  width: 6px;  /* vertical scrollbar width */
+  height: 6px; /* horizontal scrollbar height */
 }
 
 .id-verification-container .file-card-list::-webkit-scrollbar-track {
@@ -1787,12 +1792,12 @@
 }
 
 .id-verification-container .file-card-list::-webkit-scrollbar-thumb {
-  background: #ff9500;
+  background: #bdbdbd; /* gray thumb */
   border-radius: 3px;
 }
 
 .id-verification-container .file-card-list::-webkit-scrollbar-thumb:hover {
-  background: #ff8500;
+  background: #9e9e9e; /* darker gray on hover */
 }
 
 .id-verification-container .file-card {
@@ -1812,14 +1817,19 @@
   max-width: 280px;
   margin: 0 auto;           /* center within its grid cell */
   align-items: center;      /* center inner content horizontally */
+  flex: 0 0 auto;           /* keep cards on a single line without shrinking */
 }
 
 /* Ensure the browse button row centers and spans all columns */
 .id-verification-container .browse-button-container {
   display: flex;
   justify-content: center;
-  width: 100%;
-  grid-column: 1 / -1;      /* span across the entire grid */
+  width: auto;
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  z-index: 2;
 }
 
 .id-verification-container .file-card::before {

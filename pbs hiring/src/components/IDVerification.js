@@ -23,7 +23,14 @@ const IDVerification = () => {
   
   // Get selected job from location state
   const selectedJob = location.state?.selectedJob || '';
-  const [files, setFiles] = useState({ front: null, back: null, resume: null });
+  const [files, setFiles] = useState({
+    front: null,
+    back: null,
+    resume: null,
+    barangayClearance: null,
+    nbiPoliceClearance: null,
+    birthCertificatePSA: null
+  });
   const [error, setError] = useState('');
   const [idNumber, setIdNumber] = useState('');
   const [idType, setIdType] = useState('');
@@ -291,23 +298,25 @@ const IDVerification = () => {
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    const side = !files.front ? 'front' : (!files.back ? 'back' : (!files.resume ? 'resume' : null));
-    if (!side) {
+    const uploadOrder = ['front','back','resume','barangayClearance','nbiPoliceClearance','birthCertificatePSA'];
+    const nextKey = uploadOrder.find((k) => !files[k]) || null;
+    if (!nextKey) {
       setError('All files are already uploaded. Remove one to replace.');
       return;
     }
-    await validateAndSetFile(file, side);
+    await validateAndSetFile(file, nextKey);
   };
 
   const handleDrop = async (e) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-    const side = !files.front ? 'front' : (!files.back ? 'back' : (!files.resume ? 'resume' : null));
-    if (!side) {
+    const uploadOrder = ['front','back','resume','barangayClearance','nbiPoliceClearance','birthCertificatePSA'];
+    const nextKey = uploadOrder.find((k) => !files[k]) || null;
+    if (!nextKey) {
       setError('All files are already uploaded. Remove one to replace.');
       return;
     }
-    await validateAndSetFile(file, side);
+    await validateAndSetFile(file, nextKey);
   };
 
   const handleDragOver = (e) => {
@@ -371,10 +380,10 @@ const IDVerification = () => {
         return;
       }
     } else {
-      // ID files accept PDF, JPG, or PNG
+      // Other documents accept PDF, JPG, or PNG
       const validTypes = ['application/pdf', 'image/jpeg', 'image/png'];
       if (!validTypes.includes(file.type)) {
-        setError('ID files must be PDF, JPG, or PNG.');
+        setError('This document must be PDF, JPG, or PNG.');
         setFiles(prev => ({ ...prev, [side]: null }));
         return;
       }
@@ -427,10 +436,17 @@ const IDVerification = () => {
       if (auth.currentUser) {
         console.log('Starting ID upload process for user:', auth.currentUser.uid);
         
-        // Before uploading, delete existing ID-related documents (id-front, id-back, resume)
+        // Before uploading, delete existing related documents if any exist
         try {
           const existingDocs = await getApplicantDocuments(auth.currentUser.uid);
-          const toDelete = existingDocs.filter(d => ['id-front','id-back','resume'].includes(d.documentType));
+          const toDelete = existingDocs.filter(d => [
+            'id-front',
+            'id-back',
+            'resume',
+            'barangay-clearance',
+            'nbi-police-clearance',
+            'birth-certificate-psa'
+          ].includes(d.documentType));
           if (toDelete.length > 0) {
             console.log('Found existing ID/resume documents, deleting before upload:', toDelete.map(d => ({ id: d.id, type: d.documentType })));
             for (const docItem of toDelete) {
@@ -445,12 +461,18 @@ const IDVerification = () => {
           console.warn('Error checking/deleting existing ID/resume documents (proceeding with upload):', preCheckErr);
         }
         
-        // Upload ID files and resume to Firebase
-        const uploadPromises = [
-          uploadApplicantDocumentSimple(auth.currentUser.uid, files.front, 'id-front'),
-          uploadApplicantDocumentSimple(auth.currentUser.uid, files.back, 'id-back'),
-          uploadApplicantDocumentSimple(auth.currentUser.uid, files.resume, 'resume')
+        // Upload required and optional documents to Firebase
+        const uploadEntries = [
+          ['front', 'id-front'],
+          ['back', 'id-back'],
+          ['resume', 'resume'],
+          ['barangayClearance', 'barangay-clearance'],
+          ['nbiPoliceClearance', 'nbi-police-clearance'],
+          ['birthCertificatePSA', 'birth-certificate-psa']
         ];
+        const uploadPromises = uploadEntries
+          .filter(([key]) => !!files[key])
+          .map(([key, type]) => uploadApplicantDocumentSimple(auth.currentUser.uid, files[key], type));
         
         const uploadedDocs = await Promise.all(uploadPromises);
         console.log('ID files uploaded successfully:', uploadedDocs);
@@ -560,14 +582,14 @@ const IDVerification = () => {
       <div className="id-verification-main">
         <div className="id-verification-header-container">
           <h1 className="id-verification-title">Applicant Documents</h1>
-          <h2 className="id-verification-title-secondary">Resume and Identification upload Section</h2>
+          <h2 className="id-verification-title-secondary">Upload your Valid ID, Resume, Barangay Clearance, and NBI or Police Clearance.</h2>
           <p className="id-verification-subtitle">Please upload a government issued ID (front and Back) for verification</p>
           <p className="id-verification-subtitle"><strong>Selected Job: {selectedJob || 'No job selected'}</strong></p>
         </div>
         <div className="id-upload-section">
           {/* Single upload area for both sides */}
           <div
-            className={`upload-drop-area${error ? ' has-error' : ''}${files.front || files.back || files.resume ? ' has-files' : ''}`}
+            className={`upload-drop-area${error ? ' has-error' : ''}${Object.values(files).some(Boolean) ? ' has-files' : ''}`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onClick={handleBrowseClick}
@@ -581,21 +603,39 @@ const IDVerification = () => {
               }
             }}
           >
+            {(() => {
+              const order = ['front','back','resume','barangayClearance','nbiPoliceClearance','birthCertificatePSA'];
+              const nextKey = order.find((k) => !files[k]);
+              const accept = nextKey === 'resume' ? '.pdf' : '.pdf,.jpg,.jpeg,.png';
+              const labelMap = {
+                front: 'Front ID',
+                back: 'Back ID',
+                resume: 'Resume',
+                barangayClearance: 'Barangay Clearance',
+                nbiPoliceClearance: 'NBI/Police Clearance',
+                birthCertificatePSA: 'Birth Certificate (PSA)'
+              };
+              return (
             <input
               type="file"
               ref={fileInputRef}
               style={{ display: 'none' }}
-              accept={!files.front ? ".pdf,.jpg,.jpeg,.png" : !files.back ? ".pdf,.jpg,.jpeg,.png" : ".pdf"}
+                  accept={accept}
               onChange={handleFileChange}
+                  aria-label={`Upload ${labelMap[nextKey] || 'document'} file`}
             />
-            {(!files.front && !files.back && !files.resume) ? (
+              );
+            })()}
+            {(!Object.values(files).some(Boolean)) ? (
               <>
                 <div className="upload-icon">
                   <svg width="80" height="80" viewBox="0 0 24 24" fill="none"><path d="M12 16V4M12 4L7 9M12 4l5 5" stroke="#222" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><rect x="3" y="16" width="18" height="4" rx="2" fill="#222" fillOpacity="0.1"/></svg>
                 </div>
                 <div className="upload-text">
                   <strong>Drag & Drop Files</strong>
-                  <div>or click to browse files {!files.front ? "(PDF, JPG, PNG)" : !files.back ? "(PDF, JPG, PNG)" : "(PDF only)"}</div>
+                  <div>
+                    or click to browse files (PDF, JPG, PNG for IDs and clearances; PDF only for Resume)
+                  </div>
                   <button type="button" className="browse-btn" onClick={handleBrowseClick} aria-label="Browse files">Browse Files</button>
                 </div>
               </>
@@ -697,7 +737,115 @@ const IDVerification = () => {
                     </div>
                   </div>
                 )}
-                {(!files.front || !files.back || !files.resume) && (
+                {files.barangayClearance && (
+                  <div className="file-card">
+                    <div className="file-card-thumb">
+                      {files.barangayClearance.type.startsWith('image/') ? (
+                        <img src={URL.createObjectURL(files.barangayClearance)} alt={files.barangayClearance.name} className="file-thumb-img" />
+                      ) : (
+                        <div className="file-thumb-icon">
+                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" fill="#e3e3e3"/><text x="12" y="17" textAnchor="middle" fontSize="10" fill="#888">{files.barangayClearance.type === 'application/pdf' ? 'PDF' : 'DOC'}</text></svg>
+                        </div>
+                      )}
+                    </div>
+                    <div className="file-card-info">
+                      <div className="file-card-name">{files.barangayClearance.name}</div>
+                      <div className="file-card-type">{files.barangayClearance.type === 'application/pdf' ? 'PDF Document' : files.barangayClearance.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ? 'Microsoft Word' : files.barangayClearance.type.replace('image/', '').toUpperCase()}</div>
+                    </div>
+                    <div className="file-card-actions">
+                      <button 
+                        className="file-action-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFiles(prev => ({ ...prev, barangayClearance: null }));
+                          if (error) setError('');
+                        }}
+                        title="Remove file"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <path d="M18 6L6 18M6 6l12 12" stroke="#dc3545" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {files.nbiPoliceClearance && (
+                  <div className="file-card">
+                    <div className="file-card-thumb">
+                      {files.nbiPoliceClearance.type.startsWith('image/') ? (
+                        <img src={URL.createObjectURL(files.nbiPoliceClearance)} alt={files.nbiPoliceClearance.name} className="file-thumb-img" />
+                      ) : (
+                        <div className="file-thumb-icon">
+                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" fill="#e3e3e3"/><text x="12" y="17" textAnchor="middle" fontSize="10" fill="#888">{files.nbiPoliceClearance.type === 'application/pdf' ? 'PDF' : 'DOC'}</text></svg>
+                        </div>
+                      )}
+                    </div>
+                    <div className="file-card-info">
+                      <div className="file-card-name">{files.nbiPoliceClearance.name}</div>
+                      <div className="file-card-type">{files.nbiPoliceClearance.type === 'application/pdf' ? 'PDF Document' : files.nbiPoliceClearance.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ? 'Microsoft Word' : files.nbiPoliceClearance.type.replace('image/', '').toUpperCase()}</div>
+                    </div>
+                    <div className="file-card-actions">
+                      <button 
+                        className="file-action-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFiles(prev => ({ ...prev, nbiPoliceClearance: null }));
+                          if (error) setError('');
+                        }}
+                        title="Remove file"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <path d="M18 6L6 18M6 6l12 12" stroke="#dc3545" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {files.birthCertificatePSA && (
+                  <div className="file-card">
+                    <div className="file-card-thumb">
+                      {files.birthCertificatePSA.type.startsWith('image/') ? (
+                        <img src={URL.createObjectURL(files.birthCertificatePSA)} alt={files.birthCertificatePSA.name} className="file-thumb-img" />
+                      ) : (
+                        <div className="file-thumb-icon">
+                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" fill="#e3e3e3"/><text x="12" y="17" textAnchor="middle" fontSize="10" fill="#888">{files.birthCertificatePSA.type === 'application/pdf' ? 'PDF' : 'DOC'}</text></svg>
+                        </div>
+                      )}
+                    </div>
+                    <div className="file-card-info">
+                      <div className="file-card-name">{files.birthCertificatePSA.name}</div>
+                      <div className="file-card-type">{files.birthCertificatePSA.type === 'application/pdf' ? 'PDF Document' : files.birthCertificatePSA.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ? 'Microsoft Word' : files.birthCertificatePSA.type.replace('image/', '').toUpperCase()}</div>
+                    </div>
+                    <div className="file-card-actions">
+                      <button 
+                        className="file-action-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFiles(prev => ({ ...prev, birthCertificatePSA: null }));
+                          if (error) setError('');
+                        }}
+                        title="Remove file"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <path d="M18 6L6 18M6 6l12 12" stroke="#dc3545" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {(() => {
+                  const order = ['front','back','resume','barangayClearance','nbiPoliceClearance','birthCertificatePSA'];
+                  const nextKey = order.find((k) => !files[k]);
+                  const labelMap = {
+                    front: 'Front ID',
+                    back: 'Back ID',
+                    resume: 'Resume',
+                    barangayClearance: 'Barangay Clearance',
+                    nbiPoliceClearance: 'NBI/Police Clearance',
+                    birthCertificatePSA: 'Birth Certificate (PSA)'
+                  };
+                  if (!nextKey) return null;
+                  return (
                   <div className="browse-button-container">
                   <button 
                     className="browse-btn"
@@ -706,10 +854,11 @@ const IDVerification = () => {
                       handleBrowseClick();
                     }}
                   >
-                      Upload {!files.front ? 'Front ID' : !files.back ? 'Back ID' : 'Resume'} File
+                      Upload {labelMap[nextKey]} File
                   </button>
                   </div>
-                )}
+                  );
+                })()}
               </div>
             )}
           </div>

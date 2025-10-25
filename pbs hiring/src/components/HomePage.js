@@ -168,9 +168,8 @@ const HomePage = () => {
       "Valid Government ID (National ID, Driver's License, etc.)",
       'Barangay Clearance',
       'NBI or Police Clearance',
-      'Medical Certificate / Fit-to-Work',
       'Birth Certificate (PSA)',
-      'SSS, PhilHealth, Pag-IBIG, and TIN Numbers'
+      
     ];
     const title = (jobTitle || '').toString().toUpperCase();
     let professionalCertificate;

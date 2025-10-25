@@ -316,6 +316,58 @@ const ApplicantDashboard = () => {
     }
   };
 
+  // Document requirements consistent with HomePage (without Medical Certificate and SSS/PhilHealth/Pag-IBIG/TIN)
+  const getJobDocumentRequirements = (jobTitle) => {
+    const commonDocuments = [
+      'Updated Resume / Bio Data',
+      "Valid Government ID (National ID, Driver's License, etc.)",
+      'Barangay Clearance',
+      'NBI or Police Clearance',
+      'Birth Certificate (PSA)'
+    ];
+    const title = (jobTitle || '').toString().toUpperCase();
+    let professionalCertificate;
+    switch (title) {
+      case 'ELECTRICAL ENGINEER':
+        professionalCertificate = 'Certificate: PRC License / ID (Registered Electrical Engineer or Master Electrician), Board Certificate';
+        break;
+      case 'ELECTRONICS ENGINEER':
+        professionalCertificate = 'Certificate: PRC License / ID (Electronics Engineer), Board Certificate';
+        break;
+      case 'TECHNICIAN':
+        professionalCertificate = 'Certificate: TESDA NC II or NC III (based on specialization)';
+        break;
+      case 'CCTV TECHNICIAN':
+        professionalCertificate = 'Certificate: TESDA NC II (Electronic Products Assembly & Servicing or CCTV Installation)';
+        break;
+      case 'NETWORK TECHNICIAN':
+        professionalCertificate = 'Certificate: TESDA NC II (Computer Systems Servicing)';
+        break;
+      case 'WELDER':
+        professionalCertificate = 'Certificate: TESDA NC I or NC II (Shielded Metal Arc Welding – SMAW)';
+        break;
+      case 'MASON':
+        professionalCertificate = 'Certificate: TESDA NC II (Masonry) (optional but preferred)';
+        break;
+      case 'PIPE FITTER':
+        professionalCertificate = 'Certificate: TESDA NC II (Pipefitting)';
+        break;
+      case 'ELECTRICIAN':
+        professionalCertificate = 'Certificate: TESDA NC II (Electrical Installation & Maintenance) / RME License (optional)';
+        break;
+      case 'PAINTER':
+        professionalCertificate = 'Certificate: TESDA NC II (Painting – optional but preferred)';
+        break;
+      case 'HELPER':
+        professionalCertificate = 'Certificate: None required';
+        break;
+      default:
+        professionalCertificate = 'Certificate or License relevant to the position (if applicable)';
+        break;
+    }
+    return [...commonDocuments, professionalCertificate];
+  };
+
   // Professional SVG icons for job cards - clean, modern, corporate style
   const getSvgIconForJob = (jobOrTitle) => {
     const title = typeof jobOrTitle === 'object' ? jobOrTitle?.title || '' : jobOrTitle || '';
@@ -1199,6 +1251,9 @@ const ApplicantDashboard = () => {
           <div className="job-openings-section">
             <h2 className="job-openings-title">Job Openings</h2>
             <p className="job-openings-subtitle">We are looking for skilled and dedicated professionals to join our team in the following roles</p>
+            <p className="job-openings-subtitle">
+              Upload your Resume, Valid ID, Barangay Clearance, and NBI or Police Clearance.
+            </p>
           </div>
           <div className="job-cards-grid">
             {loading ? (
@@ -1317,6 +1372,14 @@ const ApplicantDashboard = () => {
                               ];
                           }
                         })()}
+                      </ul>
+                    </div>
+                    <div className="job-card-documents">
+                      <div className="requirements-title">Requirements:</div>
+                      <ul className="requirements-list">
+                        {getJobDocumentRequirements(jobTitle).map((doc, i) => (
+                          <li key={`doc-${i}`}>{doc}</li>
+                        ))}
                       </ul>
                     </div>
                     <button className="job-card-btn primary" onClick={() => handleJobClick(job)}>
