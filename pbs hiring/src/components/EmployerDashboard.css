@@ -3026,14 +3026,17 @@
 
 /* Ranked list action styles to mirror Admin */
 .ranked-candidates-content .um-td.actions { display: flex; align-items: center; gap: 8px; }
-.ranked-candidates-content .um-action-link { display: inline-flex; align-items: center; justify-content: center; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s ease; }
+.ranked-candidates-content .um-action-link { display: inline-flex; align-items: center; justify-content: center; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease; }
 .ranked-candidates-content .um-action-link.view { background: #f1f5f9; color: #4a5568; }
 .ranked-candidates-content .um-action-link.view:hover { background: #e2e8f0; color: #2d3748; }
 .ranked-candidates-content .um-action-link.calendar { background: #dbeafe; color: #2563eb; }
 .ranked-candidates-content .um-action-link.calendar:hover { background: #bfdbfe; color: #1d4ed8; }
-.ranked-candidates-content .um-action-link.reject { background: #e11d48; color: #ffffff; border-radius: 8px; padding: 8px 14px; gap: 8px; width: auto; height: auto; }
-.ranked-candidates-content .um-action-link.reject:hover { background: #be123c; color: #ffffff; }
+/* Copy reject styles from AdminDashboard */
+.ranked-candidates-content .um-action-link.reject,
+.ranked-candidates-content button.um-action-link.reject { background: #fecaca !important; color: #991b1b !important; border-color: #fca5a5 !important; border-radius: 8px; padding: 8px 14px; gap: 8px; width: auto; height: auto; }
 .ranked-candidates-content .um-action-link.reject .label { letter-spacing: 0.5px; }
+.ranked-candidates-content .um-action-link.reject:hover,
+.ranked-candidates-content button.um-action-link.reject:hover { background: #f87171 !important; border-color: #ef4444 !important; color: #ffffff !important; }
 
 /* Make remarks icon gray in candidate status */
 .candidate-status-content .um-td.remarks i.fa-comment-dots {
